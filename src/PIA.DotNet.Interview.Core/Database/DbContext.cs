@@ -9,7 +9,7 @@ namespace PIA.DotNet.Interview.Core.Database
 {
     public class DbContext : IDbContext
     {
-        private const string DATABASE_PATH = @"C:\Source\database.json"; // to do task_4
+        private const string DATABASE_PATH = @"C:\Users\galio\igor_pia2\PIA.DotNet.Interview\database.json"; // to do task_4
         private Database _database;
 
         public DbContext()
