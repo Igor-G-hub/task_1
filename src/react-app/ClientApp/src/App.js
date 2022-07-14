@@ -1,28 +1,44 @@
-import React, { Component, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import parse from "html-react-parser";
 import "./custom.css";
-import database from "./helperDatabase.json";
 
 const App = () => {
+  const taskApiUrl = "http://localhost:5001/api/task/GetTasks";
+  const host = window.location.host;
+
+  const [taskCollection, setTaskCollection] = useState(null);
+
   useEffect(() => {
-    fetch("http://localhost:5000/api/task/GetTasks", {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    fetch(taskApiUrl, {
       method: "GET",
       headers: {
-        "Content-Type": "text/plain",
+        "Content-Type": " aplication/json",
       },
-      mode: "no-cors",
-    }).then((response) => console.log("response", response));
-  }, []);
+    })
+      .then((res) => res.json())
+      .then((data) => setTaskCollection(data))
+      .catch((err) => console.log("err", err));
+  };
+
+  // couldn't find api to get existing images for each task
+
+  // const fetchImage = async (example) => {
+  //   const result = await fetch(`http://${host}/${example}`, {
+  //     method: "GET",
+  //   })
+  //     .then((res) => res)
+  //     .catch((err) => null);
+  //   return result;
+  // };
 
   const isNullOrWhiteSpace = (example) => {
     return (
       example === null || example == "\t" || example === " " || example === ""
     );
-  };
-
-  const stringToHTML = (str) => {
-    var dom = document.createElement("div");
-    dom.innerHTML = str;
-    return dom;
   };
 
   return (
@@ -74,38 +90,39 @@ const App = () => {
           <div className="text-left">
             <h1 className="alert-success text-center">Tasks</h1>
             <h3>The tasks for this interview sample are as follows:</h3>
-            {database.Tasks.map((task, index) => {
-              return (
-                <div
-                  className={`card mb-3 ${task.IsFinished} ? "text-white bg-primary" : "bg-light`}
-                  key={index}
-                >
-                  <div className="card-header">{`Task ${task.Id}`}</div>
-                  <div className="card-body">
-                    <h5 className="card-title">{task.Title}</h5>
-                    <p className="card-text">{task.Description}</p>
-                    <>
-                      {!isNullOrWhiteSpace(task.Example) ? (
-                        <div className="card" style={{ width: "400px" }}>
-                          <img
-                            className="card-img-top"
-                            src={task.Example}
-                            alt="Card image"
-                            style={{ width: "100%" }}
-                          />
-                          <div className="card-footer">
-                            <small className="text-muted">Example</small>
+            {taskCollection &&
+              taskCollection.map((task, index) => {
+                return (
+                  <div
+                    className={`card mb-3 ${task.isFinished} ? "text-white bg-primary" : "bg-light`}
+                    key={index}
+                  >
+                    <div className="card-header">{`Task ${task.id}`}</div>
+                    <div className="card-body">
+                      <h5 className="card-title">{task.title}</h5>
+                      <div className="card-text">{parse(task.description)}</div>
+                      <>
+                        {!isNullOrWhiteSpace(task.example) ? (
+                          <div className="card" style={{ width: "400px" }}>
+                            <img
+                              className="card-img-top"
+                              // src={fetchImage(task.example)}
+                              alt="Card image"
+                              style={{ width: "100%" }}
+                            />
+                            <div className="card-footer">
+                              <small className="text-muted">Example</small>
+                            </div>
                           </div>
-                        </div>
-                      ) : null}
-                    </>
-                    <a href="#" className="btn btn-primary mt-1">
-                      Erledigt
-                    </a>
+                        ) : null}
+                      </>
+                      <a href="#" className="btn btn-primary mt-1">
+                        Erledigt
+                      </a>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </main>
       </div>
