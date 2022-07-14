@@ -3,7 +3,8 @@ import parse from "html-react-parser";
 import "./custom.css";
 
 const App = () => {
-  const taskApiUrl = "http://localhost:5001/api/task/GetTasks";
+  const getTaskApiUrl = "http://localhost:5001/api/task/GetTasks";
+  const deleteTaskApiUrl = "http://localhost:5001/api/Task/DeleteTask";
   const host = window.location.host;
 
   const [taskCollection, setTaskCollection] = useState(null);
@@ -12,15 +13,36 @@ const App = () => {
     fetchData();
   }, []);
 
-  const fetchData = async () => {
-    fetch(taskApiUrl, {
+  const fetchData = () => {
+    fetch(getTaskApiUrl, {
       method: "GET",
       headers: {
-        "Content-Type": " aplication/json",
+        "Content-Type": "aplication/json",
       },
     })
       .then((res) => res.json())
       .then((data) => setTaskCollection(data))
+      .catch((err) => console.log("err", err));
+  };
+
+  const deleteTask = (id, title, description, isfinished, example) => {
+    const data = { id, title, description, isfinished, example };
+    fetch(deleteTaskApiUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/problem+json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (!result) {
+          const newTaskCollection = taskCollection.filter(
+            (task) => task.id !== id
+          );
+          setTaskCollection(newTaskCollection);
+        }
+      })
       .catch((err) => console.log("err", err));
   };
 
@@ -118,6 +140,22 @@ const App = () => {
                       </>
                       <a href="#" className="btn btn-primary mt-1">
                         Erledigt
+                      </a>
+                      <a
+                        href="#"
+                        className="btn btn-primary mt-1 ml-3"
+                        style={{ marginLeft: "10px" }}
+                        onClick={() =>
+                          deleteTask(
+                            task.id,
+                            task.title,
+                            task.description,
+                            task.isFinished,
+                            task.example
+                          )
+                        }
+                      >
+                        Löschen
                       </a>
                     </div>
                   </div>
